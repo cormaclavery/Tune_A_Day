@@ -1,13 +1,23 @@
-package com.cormaclavery.tuneaday.tunes;
+package com.cormaclavery.tuneaday.model;
+
+import com.google.gson.annotations.SerializedName;
 
 public class Tune {
 
-    public String getId() {
-        return mId;
+    public String getTune() {
+        return mTune;
     }
 
-    public void setId(String id) {
-        mId = id;
+    public void setTune(String tune) {
+        mTune = tune;
+    }
+
+    public String getSetting() {
+        return mSetting;
+    }
+
+    public void setSetting(String setting) {
+        mSetting = setting;
     }
 
     public String getName() {
@@ -50,11 +60,20 @@ public class Tune {
         mAbc = abc;
     }
 
-    private String mId;
+
+    @SerializedName("tune")
+    private String mTune;
+    @SerializedName("setting")
+    private String mSetting;
+    @SerializedName("name")
     private String mName;
+    @SerializedName("type")
     private String mType;
+    @SerializedName("meter")
     private String mMeter;
+    @SerializedName("mode")
     private String mMode;
+    @SerializedName("abc")
     private String mAbc;
 
     public Tune(){
