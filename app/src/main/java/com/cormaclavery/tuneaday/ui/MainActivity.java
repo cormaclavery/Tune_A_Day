@@ -30,6 +30,9 @@ public class MainActivity extends AppCompatActivity {
 
     private Tune mTune;
     private TuneBook mTunebook;
+    private Random rn = new Random();
+    private int index;
+    private int TuneBookSize;
 
 
 
@@ -45,15 +48,14 @@ public class MainActivity extends AppCompatActivity {
         BufferedReader br = new BufferedReader(new InputStreamReader(this.getResources().openRawResource(R.raw.tunes)));
         mTunebook = mGson.fromJson(br, TuneBook.class);
 
+        TuneBookSize = mTunebook.getTuneList().size();
+
 
 
         mRandomTuneButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Random rn = new Random();
-                int index = 0;
-                index = rn.nextInt(mTunebook.getTuneList().size());
-                mTune = mTunebook.getTuneAtIndex(index);
+                setRandomTune();
                 updateDisplay();
             }
         });
@@ -83,6 +85,23 @@ public class MainActivity extends AppCompatActivity {
     private void updateDisplay(){
         mTitleView.setText(mTune.getName());
         mAbcView.setText(mTune.getAbc());
+    }
+
+    private void setRandomTune(){
+
+        index = rn.nextInt(TuneBookSize -1);
+        mTune = mTunebook.getTuneAtIndex(index);
+
+
+        if(mTune.getAbc()==null){
+            setRandomTune();
+        }
+        if(mTune.getName().length()>5) {
+            if (mTune.getName().substring(mTune.getName().length() - 5).equals(", The")) {
+                mTune.setName("The " + mTune.getName().substring(0, mTune.getName().length() - 5));
+            }
+        }
+
     }
 
 }
