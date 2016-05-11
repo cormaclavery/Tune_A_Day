@@ -76,16 +76,6 @@ public class Tune {
     @SerializedName("abc")
     private String mAbc;
 
-    public String getTuneURL() {
-        return mTuneURL;
-    }
-
-    public void setTuneURL(String tuneURL) {
-        mTuneURL = tuneURL;
-    }
-
-    private String mTuneURL;
-
     public Tune(){
 
     }
@@ -96,8 +86,15 @@ public class Tune {
     }
 
     //This will return the name of the tune and the type with '+' instead of ' ' so it can be used in a search query
-    public String getSearchQuery(String name, String type){
-        return "";
+    public String getSearchQuery(){
+        String result = mName + " " + mType;
+        for (int i = 0; i < result.length(); i++){
+            if(result.substring(i,i+1).equals(" ")){
+                result = result.substring(0,i) + "+" + result.substring(i+1);
+            }
+        }
+
+        return result;
     }
 
 }

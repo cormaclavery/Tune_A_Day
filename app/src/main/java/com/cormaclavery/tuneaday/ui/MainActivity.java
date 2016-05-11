@@ -4,7 +4,7 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -18,9 +18,6 @@ import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
 import com.google.android.youtube.player.YouTubePlayerView;
 import com.google.gson.Gson;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -50,7 +47,8 @@ public class MainActivity extends YouTubeBaseActivity {
     private Random rn = new Random();
     private int index;
     private int TuneBookSize;
-    private String mTuneUrl;
+    public static final String TAG = MainActivity.class.getSimpleName();
+
 
 
 
@@ -72,7 +70,6 @@ public class MainActivity extends YouTubeBaseActivity {
         mOnInitializedListener = new YouTubePlayer.OnInitializedListener() {
             @Override
             public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer youTubePlayer, boolean b) {
-                //youTubePlayer.cueVideo("dQw4w9WgXcQ");
                 mYouTubePlayer = youTubePlayer;
 
             }
@@ -89,7 +86,7 @@ public class MainActivity extends YouTubeBaseActivity {
         mYouTubePlayerView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mYouTubePlayerView.initialize("AIzaSyBoArySMvuNVw3W4tmKIhyftG4Xf9bmiH8",mOnInitializedListener);
+                mYouTubePlayerView.initialize("AIzaSyBoArySMvuNVw3W4tmKIhyftG4Xf9bmiH8", mOnInitializedListener);
 
             }
         });
@@ -99,12 +96,18 @@ public class MainActivity extends YouTubeBaseActivity {
             public void onClick(View v) {
                 setRandomTune();
                 updateDisplay();
-                mYouTubePlayer.cueVideo("ELoR4Qu9bpg");
-                mYouTubePlayerView.setVisibility(View.VISIBLE);
+                updateVideo();
+
 
             }
         });
 
+    }
+
+    private void updateVideo() {
+        getSearchObjects(mTune.getSearchQuery());
+        mYouTubePlayer.cueVideo("ELoR4Qu9bpg");
+        mYouTubePlayerView.setVisibility(View.VISIBLE);
     }
 
 
@@ -140,39 +143,39 @@ public class MainActivity extends YouTubeBaseActivity {
         String apiKey = "AIzaSyA0jSX9mrPUZN_Vkwh08RdesmkC1fZFB7A";
 
 
-        String searchUrl = "https://www.googleapis.com/youtube/v3/search?part=snippet&q="+search+"&type=video&key="+apiKey;
-        if(isNetworkAvailable()) {
+        String searchUrl = "https://www.googleapis.com/youtube/v3/search?part=snippet&q="
+                +search+"&type=video&key="+apiKey;
 
-            OkHttpClient client = new OkHttpClient();
-            Request request = new Request.Builder()
-                    .url(searchUrl)
-                    .build();
+        Log.v(TAG, searchUrl);
 
-            Call call = client.newCall(request);
-            call.enqueue(new Callback() {
-                @Override
-                public void onFailure(Call call, IOException e) {
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(searchUrl)
+                .build();
 
+        Call call = client.newCall(request);
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                try {
+                    if (response.isSuccessful()){
+                        Log.v(TAG, response.body().string());
+                    }
+                } catch (IOException e) {
+                    Log.e(TAG, "Exception caught: ", e);
                 }
+            }
+        });
 
-                @Override
-                public void onResponse(Call call, Response response) throws IOException {
 
-                }
-            });
-        }
+
     }
 
-    private boolean isNetworkAvailable(){
-        ConnectivityManager manager = (ConnectivityManager)
-                getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = manager.getActiveNetworkInfo();
-        boolean isAvailable = false;
-        if(networkInfo!=null && networkInfo.isConnected()){
-            isAvailable = true;
-        }
 
-        return isAvailable;
-    }
 
 }
