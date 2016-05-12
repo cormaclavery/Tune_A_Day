@@ -1,8 +1,5 @@
 package com.cormaclavery.tuneaday.ui;
 
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -18,6 +15,10 @@ import com.google.android.youtube.player.YouTubeInitializationResult;
 import com.google.android.youtube.player.YouTubePlayer;
 import com.google.android.youtube.player.YouTubePlayerView;
 import com.google.gson.Gson;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -45,6 +46,7 @@ public class MainActivity extends YouTubeBaseActivity {
     private Tune mTune;
     private TuneBook mTunebook;
     private Random rn = new Random();
+    private Gson mGson = new Gson();
     private int index;
     private int TuneBookSize;
     public static final String TAG = MainActivity.class.getSimpleName();
@@ -60,12 +62,11 @@ public class MainActivity extends YouTubeBaseActivity {
         ButterKnife.bind(this);
 
         //parses in the tunes.JSON
-        Gson mGson = new Gson();
+        //Gson mGson = new Gson();
         BufferedReader br = new BufferedReader(new InputStreamReader(this.getResources().openRawResource(R.raw.tunes)));
         mTunebook = mGson.fromJson(br, TuneBook.class);
         TuneBookSize = mTunebook.getTuneList().size();
 
-        mYouTubePlayerView.setVisibility(View.INVISIBLE);
 
         mOnInitializedListener = new YouTubePlayer.OnInitializedListener() {
             @Override
@@ -80,7 +81,7 @@ public class MainActivity extends YouTubeBaseActivity {
             }
         };
 
-        mYouTubePlayerView.initialize("AIzaSyBoArySMvuNVw3W4tmKIhyftG4Xf9bmiH8",mOnInitializedListener);
+        mYouTubePlayerView.initialize("AIzaSyBoArySMvuNVw3W4tmKIhyftG4Xf9bmiH8", mOnInitializedListener);
 
 
         mYouTubePlayerView.setOnClickListener(new View.OnClickListener() {
@@ -94,9 +95,10 @@ public class MainActivity extends YouTubeBaseActivity {
         mRandomTuneButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 setRandomTune();
                 updateDisplay();
-                updateVideo();
+                getSearchJSON(mTune.getSearchQuery());
 
 
             }
@@ -104,10 +106,9 @@ public class MainActivity extends YouTubeBaseActivity {
 
     }
 
-    private void updateVideo() {
-        getSearchObjects(mTune.getSearchQuery());
-        mYouTubePlayer.cueVideo("ELoR4Qu9bpg");
-        mYouTubePlayerView.setVisibility(View.VISIBLE);
+    private void updateVideo(String videoId) {
+
+        mYouTubePlayer.cueVideo(videoId);
     }
 
 
@@ -138,13 +139,13 @@ public class MainActivity extends YouTubeBaseActivity {
 
     }
 
-    private void getSearchObjects(String search){
+    private void getSearchJSON(String search){
 
         String apiKey = "AIzaSyA0jSX9mrPUZN_Vkwh08RdesmkC1fZFB7A";
 
 
         String searchUrl = "https://www.googleapis.com/youtube/v3/search?part=snippet&q="
-                +search+"&type=video&key="+apiKey;
+                +search+"&key="+apiKey;
 
         Log.v(TAG, searchUrl);
 
@@ -163,11 +164,18 @@ public class MainActivity extends YouTubeBaseActivity {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 try {
+                    String jsonData = response.body().string();
                     if (response.isSuccessful()){
-                        Log.v(TAG, response.body().string());
+                        Log.v(TAG, jsonData);
+                        getSearchResult(jsonData);
                     }
-                } catch (IOException e) {
+                }
+                catch (IOException e) {
                     Log.e(TAG, "Exception caught: ", e);
+                }
+                catch (JSONException e){
+                    Log.e(TAG, "Exception caught: ", e);
+
                 }
             }
         });
@@ -176,6 +184,18 @@ public class MainActivity extends YouTubeBaseActivity {
 
     }
 
+    private void getSearchResult(String jsonData) throws JSONException {
+        JSONObject jsonObject = new JSONObject(jsonData);
+        JSONArray items = jsonObject.getJSONArray("items");
+
+        JSONObject item = items.getJSONObject(0);
+        JSONObject id = item.getJSONObject("id");
+        String videoId = id.getString("videoId");
+        Log.v(TAG, videoId);
+
+        updateVideo(videoId);
+
+    }
 
 
 }

@@ -4,6 +4,31 @@ import com.google.gson.annotations.SerializedName;
 
 public class Tune {
 
+    @SerializedName("tune")
+    private String mTune;
+    @SerializedName("setting")
+    private String mSetting;
+    @SerializedName("name")
+    private String mName;
+    @SerializedName("type")
+    private String mType;
+    @SerializedName("meter")
+    private String mMeter;
+    @SerializedName("mode")
+    private String mMode;
+    @SerializedName("abc")
+    private String mAbc;
+    private String mVideoId;
+
+    public Tune() {
+
+    }
+
+    public Tune(String name, String abc) {
+        mName = name;
+        mAbc = abc;
+    }
+
     public String getTune() {
         return mTune;
     }
@@ -60,37 +85,20 @@ public class Tune {
         mAbc = abc;
     }
 
-
-    @SerializedName("tune")
-    private String mTune;
-    @SerializedName("setting")
-    private String mSetting;
-    @SerializedName("name")
-    private String mName;
-    @SerializedName("type")
-    private String mType;
-    @SerializedName("meter")
-    private String mMeter;
-    @SerializedName("mode")
-    private String mMode;
-    @SerializedName("abc")
-    private String mAbc;
-
-    public Tune(){
-
+    public String getVideoId() {
+        return mVideoId;
     }
 
-    public Tune(String name, String abc){
-        mName = name;
-        mAbc = abc;
+    public void setVideoId(String videoId) {
+        mVideoId = videoId;
     }
 
     //This will return the name of the tune and the type with '+' instead of ' ' so it can be used in a search query
-    public String getSearchQuery(){
+    public String getSearchQuery() {
         String result = mName + " " + mType;
-        for (int i = 0; i < result.length(); i++){
-            if(result.substring(i,i+1).equals(" ")){
-                result = result.substring(0,i) + "+" + result.substring(i+1);
+        for (int i = 0; i < result.length(); i++) {
+            if (result.substring(i, i + 1).equals(" ")) {
+                result = result.substring(0, i) + "+" + result.substring(i + 1);
             }
         }
 
